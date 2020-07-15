@@ -1,6 +1,6 @@
 import pandas as pd
 
-def readData(origem, anos):
+def readData(origem, anos, filtroExames):
     dados = None
     for ano in anos:
         dadosAno = pd.read_csv('dados-datasus/' + str(ano) + '-' + origem + '.csv', encoding='ISO-8859-1', sep = ';')
@@ -19,4 +19,10 @@ def readData(origem, anos):
         dadosAno['percentual_insatisfatorio'] = dadosAno['exames_insatisfatorios'] / dadosAno['exames'] * 100
         dadosAno = dadosAno[dadosAno['prestador'] != 'Total']
         dados = dadosAno if dadosAno is None else pd.concat([dados, dadosAno], ignore_index = True)
+        
+    prestadoresRemover = list(dados[dados['exames'] < filtroExames]['prestador'].unique())
+    for prestador in dados['prestador'].unique():
+        if len(dados[dados['prestador'] == prestador]) < len(anos):
+            prestadoresRemover.append(prestador)
+    dados = dados[~dados['prestador'].isin(prestadoresRemover)]
     return dados
