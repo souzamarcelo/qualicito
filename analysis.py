@@ -1,28 +1,33 @@
 import pandas as pd
 
-def readData(origem, anos, filtroExames):
+def leituraDados(estados, anos, filtroExames):
     dados = None
     for ano in anos:
-        dadosAno = pd.read_csv('dados-datasus/' + str(ano) + '-' + origem + '.csv', encoding='ISO-8859-1', sep = ';')
-        dadosAno.columns = ['prestador', 'exames', 'ins_mat_acelular', 'ins_pres_sangue', 'ins_pres_piocitos', 'ins_pres_art_desec', 'ins_pres_cont_exte', 'ins_pres_sup_celul', 'ins_outros', 'asc_us', 'asc_h', 'lsil', 'hsil', 'exames_alterados']
-        dadosAno['ano'] = ano
-        dadosAno['exames_insatisfatorios'] = dadosAno['ins_mat_acelular'] + dadosAno['ins_pres_sangue'] + dadosAno['ins_pres_piocitos'] + dadosAno['ins_pres_art_desec'] + dadosAno['ins_pres_cont_exte'] + dadosAno['ins_pres_sup_celul'] + dadosAno['ins_outros']
-        dadosAno['exames_satisfatorios'] = dadosAno['exames'] - dadosAno['exames_insatisfatorios']
-        dadosAno['asc_total'] = dadosAno['asc_us'] + dadosAno['asc_h']
-        dadosAno['sil_total'] = dadosAno['lsil'] + dadosAno['hsil']
-        dadosAno = dadosAno[['prestador', 'ano', 'exames', 'exames_satisfatorios', 'exames_insatisfatorios', 'exames_alterados', 'asc_total', 'sil_total', 'hsil']]
-        dadosAno['indice_positividade'] = dadosAno['exames_alterados'] / dadosAno['exames_satisfatorios'] * 100
-        dadosAno['percentual_asc_sat'] = dadosAno['asc_total'] / dadosAno['exames_satisfatorios'] * 100
-        dadosAno['percentual_asc_alt'] = dadosAno['asc_total'] / dadosAno['exames_alterados'] * 100
-        dadosAno['razao_asc_sil'] = dadosAno['asc_total'] / dadosAno['sil_total']
-        dadosAno['percentual_hsil'] = dadosAno['hsil'] / dadosAno['exames_satisfatorios'] * 100
-        dadosAno['percentual_insatisfatorio'] = dadosAno['exames_insatisfatorios'] / dadosAno['exames'] * 100
-        dadosAno = dadosAno[dadosAno['prestador'] != 'Total']
-        dados = dadosAno if dadosAno is None else pd.concat([dados, dadosAno], ignore_index = True)
-        
-    prestadoresRemover = list(dados[dados['exames'] < filtroExames]['prestador'].unique())
-    for prestador in dados['prestador'].unique():
-        if len(dados[dados['prestador'] == prestador]) < len(anos):
-            prestadoresRemover.append(prestador)
-    dados = dados[~dados['prestador'].isin(prestadoresRemover)]
+        for estado in estados:
+            alt = pd.read_csv('dados-datasus/' + str(ano) + '-' + estado + '-alterados.csv', encoding='ISO-8859-1', sep = ';')
+            adeq = pd.read_csv('dados-datasus/' + str(ano) + '-' + estado + '-adequabilidade.csv', encoding='ISO-8859-1', sep = ';')
+            alt = alt[['Prestador de serviço', ' ASC-US', ' ASC-H', 'Les IE Baixo Grau', 'Les IEp Alto Grau', 'Exames Alterados']]
+            alt.columns = ['lab_desc', 'asc_us', 'asc_h', 'lsil', 'hsil', 'ex_alt']
+            adeq.columns = ['lab_desc', 'ex_rej', 'ex_sat', 'ex_ins', 'ex_total']
+            dadosAnoEstado = pd.merge(alt, adeq, on = 'lab_desc')
+            dadosAnoEstado = dadosAnoEstado[dadosAnoEstado['lab_desc'] != 'Total']
+            dadosAnoEstado['ano'] = ano
+            dadosAnoEstado['estado'] = estado
+            dadosAnoEstado['asc_total'] = dadosAnoEstado['asc_us'] + dadosAnoEstado['asc_h']
+            dadosAnoEstado['sil_total'] = dadosAnoEstado['lsil'] + dadosAnoEstado['hsil']
+            dadosAnoEstado['ind_pos'] = dadosAnoEstado['ex_alt'] / dadosAnoEstado['ex_sat'] * 100
+            dadosAnoEstado['per_asc_sat'] = dadosAnoEstado['asc_total'] / dadosAnoEstado['ex_sat'] * 100
+            dadosAnoEstado['per_asc_alt'] = dadosAnoEstado['asc_total'] / dadosAnoEstado['ex_alt'] * 100
+            dadosAnoEstado['raz_asc_sil'] = dadosAnoEstado['asc_total'] / dadosAnoEstado['sil_total']
+            dadosAnoEstado['per_hsil'] = dadosAnoEstado['hsil'] / dadosAnoEstado['ex_sat'] * 100
+            dadosAnoEstado['per_ins'] = dadosAnoEstado['ex_ins'] / dadosAnoEstado['ex_total'] * 100
+            dados = pd.concat([dados, dadosAnoEstado], ignore_index = True)
+    labsRemover = list(dados[dados['ex_total'] < filtroExames]['lab_desc'].unique())
+    for lab in dados['lab_desc'].unique():
+        if len(dados[dados['lab_desc'] == lab]) < len(anos):
+            labsRemover.append(lab)
+    dados = dados[~dados['lab_desc'].isin(labsRemover)]
+    listLabs = list(dados['lab_desc'].unique())
+    dados['lab'] = dados['lab_desc'].map(lambda x: listLabs.index(x) + 1)
+    dados = dados.reset_index()
     return dados
