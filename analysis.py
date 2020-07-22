@@ -43,3 +43,34 @@ def leituraDados(estados, anos, filtroExames, limitesClasses):
         dados.loc[dados['lab'] == lab, 'classe'] = 'pouco' if minExames < limitesClasses[0] else 'razoavel' if minExames < limitesClasses[1] else 'bom' if minExames < limitesClasses[2] else 'ideal'
 
     return dados
+
+
+def laboratoriosEstadoClasse(dados):
+    d = dados[dados['ano'] == 2019].groupby(['estado', 'classe']).agg({'lab': 'count'})
+    d = d.unstack('classe')
+    d.columns = d.columns.droplevel()
+    d.columns.name = ''
+    d.reset_index(inplace = True)
+    d.estado = pd.Categorical(d.estado, categories = ['rs', 'sc', 'pr'], ordered = True)
+    d.sort_values('estado', inplace = True, ignore_index = True)
+    d = d[['estado', 'pouco', 'razoavel', 'bom', 'ideal']]
+    d['total'] = d['pouco'] + d['razoavel'] + d['bom'] + d['ideal']
+    return d
+
+
+def examesEstadoClasseAno(dados):
+    d = dados
+    d['ano'] = d['ano'].map(lambda x: str(x))
+    d = d.groupby(['estado', 'classe', 'ano']).agg({'ex_total': 'sum'})
+    d = d.unstack('ano')
+    d.columns = d.columns.droplevel()
+    d.columns.name = ''
+    d.reset_index(inplace = True)
+    d.estado = pd.Categorical(d.estado, categories = ['rs', 'sc', 'pr'], ordered = True)
+    d.classe = pd.Categorical(d.classe, categories = ['pouco', 'razoavel', 'bom', 'ideal'], ordered = True)
+    d.sort_values(['estado', 'classe'], inplace = True, ignore_index = True)
+    d['total'] = d['2015'] + d['2016'] + d['2017'] + d['2018'] + d['2019']
+    d = d.append(d.sum(numeric_only = True), ignore_index = True)
+    d.iloc[-1, d.columns.get_loc('estado')] = 'total'
+    d.iloc[-1, d.columns.get_loc('classe')] = '-'
+    return d
