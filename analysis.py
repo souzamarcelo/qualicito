@@ -1,6 +1,7 @@
 import pandas as pd
 
-def leituraDados(estados, anos, filtroExames):
+def leituraDados(estados, anos, filtroExames, limitesClasses):
+    # Leitura e cálculos
     dados = None
     for ano in anos:
         for estado in estados:
@@ -22,12 +23,23 @@ def leituraDados(estados, anos, filtroExames):
             dadosAnoEstado['per_hsil'] = dadosAnoEstado['hsil'] / dadosAnoEstado['ex_sat'] * 100
             dadosAnoEstado['per_ins'] = dadosAnoEstado['ex_ins'] / dadosAnoEstado['ex_total'] * 100
             dados = pd.concat([dados, dadosAnoEstado], ignore_index = True)
+    
+    # Filtro
     labsRemover = list(dados[dados['ex_total'] < filtroExames]['lab_desc'].unique())
     for lab in dados['lab_desc'].unique():
         if len(dados[dados['lab_desc'] == lab]) < len(anos):
             labsRemover.append(lab)
     dados = dados[~dados['lab_desc'].isin(labsRemover)]
-    listLabs = list(dados['lab_desc'].unique())
-    dados['lab'] = dados['lab_desc'].map(lambda x: listLabs.index(x) + 1)
-    dados = dados.reset_index()
+    
+    # Identificador para labs
+    listaLabs = list(dados['lab_desc'].unique())
+    dados['lab'] = dados['lab_desc'].map(lambda x: listaLabs.index(x) + 1)
+    #dados = dados.reset_index()
+
+    # Classes para labs
+    listaLabs = list(dados['lab'].unique())
+    for lab in listaLabs:
+        minExames = dados[dados['lab'] == lab]['ex_total'].min()
+        dados.loc[dados['lab'] == lab, 'classe'] = 'pouco' if minExames < limitesClasses[0] else 'razoavel' if minExames < limitesClasses[1] else 'bom' if minExames < limitesClasses[2] else 'ideal'
+
     return dados
