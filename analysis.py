@@ -23,18 +23,14 @@ def leituraDados(estados, anos, filtroExames, limitesClasses):
             dadosAnoEstado['per_hsil'] = dadosAnoEstado['hsil'] / dadosAnoEstado['ex_sat'] * 100
             dadosAnoEstado['per_ins'] = dadosAnoEstado['ex_ins'] / dadosAnoEstado['ex_total'] * 100
             dados = pd.concat([dados, dadosAnoEstado], ignore_index = True)
-    
+
     # Filtro
-    labsRemover = list(dados[dados['ex_total'] < filtroExames]['lab_desc'].unique())
-    for lab in dados['lab_desc'].unique():
-        if len(dados[dados['lab_desc'] == lab]) < len(anos):
-            labsRemover.append(lab)
-    dados = dados[~dados['lab_desc'].isin(labsRemover)]
+    dados = dados[dados['ex_total'] >= filtroExames]
     
     # Identificador para labs
     listaLabs = list(dados['lab_desc'].unique())
     dados['lab'] = dados['lab_desc'].map(lambda x: listaLabs.index(x) + 1)
-    #dados = dados.reset_index()
+    dados = dados.reset_index()
 
     # Classes para labs
     listaLabs = list(dados['lab'].unique())
@@ -74,3 +70,10 @@ def examesEstadoClasseAno(dados):
     d.iloc[-1, d.columns.get_loc('estado')] = 'total'
     d.iloc[-1, d.columns.get_loc('classe')] = '-'
     return d
+
+
+estados = ['rs', 'sc', 'pr']
+anos = [2015, 2016, 2017, 2018, 2019]
+m = 1500
+v = [5000, 10000, 15000] #v1, v2, v3
+dados = leituraDados(estados, anos, m, v)
