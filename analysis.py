@@ -143,9 +143,7 @@ def plotIndicadores(dados, medida):
 def plotCorrelacao(dados, indicador1, indicador2, baselines1, baselines2):
     plt.style.use('default')
     fig, ax = plt.subplots()
-    #d = dados[dados['ano'] == 2019]
     d = dados
-    d.reset_index(inplace = True)
     colors = ['tab:blue', 'tab:orange', 'tab:green']
     estados = list(d['estado'].unique())
 
@@ -174,4 +172,4 @@ def plotCorrelacao(dados, indicador1, indicador2, baselines1, baselines2):
 
 # Rotinas de teste
 dados = leituraDados(['rs', 'sc', 'pr'], [2015, 2016, 2017, 2018, 2019], 1500)
-#plotCorrelacao(dados, 'ind_pos', 'per_asc_alt', [2, 3, 10], [60]).show()
+#plotCorrelacao(dados[dados['ano'] == 2017], 'ind_pos', 'per_asc_alt', [2, 3, 10], [60]).show()
