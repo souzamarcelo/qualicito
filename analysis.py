@@ -111,39 +111,35 @@ def tabelaIndicador(dados, indicador, medida):
     return d
 
 
-def plotLinhas(dados, indicador, medida):
+def plotIndicadores(dados, medida):
+    indicadores = ['ind_pos', 'per_asc_sat', 'per_asc_alt', 'raz_asc_sil', 'per_hsil', 'per_ins']
+    titulos = ['Índice de positividade', 'Percentual de ASC entre exames satisfatórios', 'Percentual de ASC entre exames alterados', 'Razão ASC/(LSIL + HSIL)', 'Percentual de HSIL entre exames satisfatórios', 'Percentual de exames insatisfatórios']
+    baselines = [[2, 3, 10], [5], [60], [3], [0.4], [5]]
+
     fig = plt.figure()
-    ax = plt.axes()
-    d = dados.groupby(['ano', 'estado'], as_index = False).agg({indicador: medida})
-    estados = d['estado'].unique()
-    anos = d['ano'].unique()
-    c = 0
-    for estado in estados:
-        plt.plot(d[d['estado'] == estado]['ano'], d[d['estado'] == estado][indicador], label = estado.upper(), marker = 'o', linestyle = '-')
-        c += 1
-    plt.xticks(anos)
-    plt.legend()
+    for i in range(len(indicadores)):
+        ax = fig.add_subplot(3, 2, i + 1)
+        ax.set_title(titulos[i])
+        d = dados.groupby(['ano', 'estado'], as_index = False).agg({indicadores[i]: medida})
+        estados = d['estado'].unique()
+        anos = d['ano'].unique()
+        c = 0
+        for estado in estados:
+            ax.plot(d[d['estado'] == estado]['ano'], d[d['estado'] == estado][indicadores[i]], label = estado.upper(), marker = 'o', linestyle = '-')
+            c += 1
+        for value in baselines[i]:
+            lim = ax.get_ylim()
+            if value >= lim[0] and value <= lim[1]:
+                ax.axhline(y = value, linewidth = 1.3, color = 'r', linestyle = '--')
+                ax.annotate(s = value, xy = (2019, value), xytext = (ax.get_xlim()[1], value), fontsize = 10, color = 'r', horizontalalignment = 'right', verticalalignment = 'bottom')
+        ax.set_xticks(anos)
+        ax.legend()
+    fig.set_size_inches(12, 10)
+    fig.tight_layout()
+    fig.subplots_adjust(hspace = 0.3)
     return plt
 
-
-def plotCorrelacao(dados, indicador, medida):
-    fig = plt.figure()
-    ax = plt.axes()
-    d = dados.groupby(['ano', 'estado'], as_index = False).agg({indicador: medida})
-    estados = d['estado'].unique()
-    anos = d['ano'].unique()
-    c = 0
-    for estado in estados:
-        plt.plot(d[d['estado'] == estado]['ano'], d[d['estado'] == estado][indicador], label = estado.upper(), marker = 'o', linestyle = '-')
-        c += 1
-    plt.xticks(anos)
-    plt.legend()
-    return plt
 
 # Rotinas de teste
-estados = ['rs', 'sc', 'pr']
-anos = [2015, 2016, 2017, 2018, 2019]
-m = 1500
-v = [5000, 10000, 15000] #v1, v2, v3
-dados = leituraDados(estados, anos, m, v)
-#tabelaIndicadores(dados, 'median')
+dados = leituraDados(['rs', 'sc', 'pr'], [2015, 2016, 2017, 2018, 2019], 1500)
+#plotIndicadores(dados, 'median').show()
