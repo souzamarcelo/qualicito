@@ -129,17 +129,17 @@ def plotIndicadores(dados, medida):
             c += 1
         for value in baselines[i]:
             lim = ax.get_ylim()
-            if value >= lim[0] and value <= lim[1]:
+            if value > lim[0] and value < lim[1]:
                 ax.axhline(y = value, linewidth = 1.3, color = 'r', linestyle = '--')
-                ax.annotate(s = value, xy = (2019, value), xytext = (ax.get_xlim()[1], value), fontsize = 10, color = 'r', horizontalalignment = 'right', verticalalignment = 'bottom')
+                ax.annotate(s = str(value), xy = (ax.get_xlim()[1], value), xycoords = 'data', xytext = (-2, 2), textcoords='offset points', fontsize = 10, color = 'r', horizontalalignment = 'right', verticalalignment = 'bottom')
         ax.set_xticks(anos)
         ax.legend()
     fig.set_size_inches(12, 10)
     fig.tight_layout()
     fig.subplots_adjust(hspace = 0.3)
-    return plt
+    plt.show()
 
 
 # Rotinas de teste
 dados = leituraDados(['rs', 'sc', 'pr'], [2015, 2016, 2017, 2018, 2019], 1500)
-#plotIndicadores(dados, 'median').show()
+#plotIndicadores(dados, 'median')
