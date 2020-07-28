@@ -1,6 +1,5 @@
 import pandas as pd
 from matplotlib import pyplot as plt
-plt.style.use('seaborn-whitegrid')
 
 def leituraDados(estados, anos, filtroExames, limitesClasses = [1500, 5000, 10000]):
     # Leitura e cálculos
@@ -112,6 +111,7 @@ def tabelaIndicador(dados, indicador, medida):
 
 
 def plotIndicadores(dados, medida):
+    plt.style.use('seaborn-whitegrid')
     indicadores = ['ind_pos', 'per_asc_sat', 'per_asc_alt', 'raz_asc_sil', 'per_hsil', 'per_ins']
     titulos = ['Índice de positividade', 'Percentual de ASC entre exames satisfatórios', 'Percentual de ASC entre exames alterados', 'Razão ASC/(LSIL + HSIL)', 'Percentual de HSIL entre exames satisfatórios', 'Percentual de exames insatisfatórios']
     baselines = [[2, 3, 10], [5], [60], [3], [0.4], [5]]
@@ -137,9 +137,41 @@ def plotIndicadores(dados, medida):
     fig.set_size_inches(12, 10)
     fig.tight_layout()
     fig.subplots_adjust(hspace = 0.3)
-    plt.show()
+    return plt
 
+
+def plotCorrelacao(dados, indicador1, indicador2, baselines1, baselines2):
+    plt.style.use('default')
+    fig, ax = plt.subplots()
+    #d = dados[dados['ano'] == 2019]
+    d = dados
+    d.reset_index(inplace = True)
+    colors = ['tab:blue', 'tab:orange', 'tab:green']
+    estados = list(d['estado'].unique())
+
+    for i in range(len(estados)):
+        x = list(d[d['estado'] == estados[i]][indicador1])
+        y = list(d[d['estado'] == estados[i]][indicador2])
+        ax.scatter(x, y, c = colors[i], label = estados[i], alpha = 0.8, edgecolors = 'none')
+        
+    for value in baselines1:
+        lim = ax.get_xlim()
+        if value > lim[0] and value < lim[1]:
+            ax.axvline(x = value, linewidth = 1.3, color = 'r', linestyle = '--')
+            ax.annotate(s = str(value), xy = (value, ax.get_ylim()[1]), xycoords = 'data', xytext = (-2, -2), textcoords='offset points', fontsize = 10, color = 'r', horizontalalignment = 'right', verticalalignment = 'top')
+    for value in baselines2:
+        lim = ax.get_ylim()
+        if value > lim[0] and value < lim[1]:
+            ax.axhline(y = value, linewidth = 1.3, color = 'r', linestyle = '--')
+            ax.annotate(s = str(value), xy = (ax.get_xlim()[1], value), xycoords = 'data', xytext = (-2, 2), textcoords='offset points', fontsize = 10, color = 'r', horizontalalignment = 'right', verticalalignment = 'bottom')
+
+    ax.set_xlabel(indicador1)
+    ax.set_ylabel(indicador2)
+    ax.set_title('Correlação entre indicadores')
+    ax.legend()
+    ax.grid(False)
+    return plt
 
 # Rotinas de teste
 dados = leituraDados(['rs', 'sc', 'pr'], [2015, 2016, 2017, 2018, 2019], 1500)
-#plotIndicadores(dados, 'median')
+#plotCorrelacao(dados, 'ind_pos', 'per_asc_alt', [2, 3, 10], [60]).show()
