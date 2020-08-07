@@ -1,7 +1,7 @@
 import pandas as pd
 from matplotlib import pyplot as plt
 
-def leituraDados(estados, anos, filtroExames, limitesClasses = [1500, 5000, 10000]):
+def leituraDados(estados, anos, limitesClasses = [1500, 5000, 10000]):
     # Leitura e cálculos
     dados = None
     for ano in anos:
@@ -25,9 +25,6 @@ def leituraDados(estados, anos, filtroExames, limitesClasses = [1500, 5000, 1000
             dadosAnoEstado['per_ins'] = dadosAnoEstado['ex_ins'] / dadosAnoEstado['ex_total'] * 100
             dados = pd.concat([dados, dadosAnoEstado], ignore_index = True)
     
-    # Filtro
-    dados = dados[dados['ex_total'] >= filtroExames]
-    
     # Classes para labs
     dados['classe'] = dados['ex_total'].map(lambda x: 'pouco' if x < limitesClasses[0] else 'razoavel' if x < limitesClasses[1] else 'bom' if x < limitesClasses[2] else 'ideal')
 
@@ -40,6 +37,23 @@ def leituraDados(estados, anos, filtroExames, limitesClasses = [1500, 5000, 1000
     dados.loc[dados['sil_total'] == 0, 'raz_asc_sil'] = float('NaN')
 
     return dados
+
+
+def filtraDados(dados, filtroExames):
+    return dados[dados['ex_total'] >= filtroExames]
+
+
+def printLabsExames(dados):
+    print('\t- Total de laboratórios: %d (RS: %d; SC: %d; PR: %d)' %
+                    (len(dados['lab'].unique()),
+                    len(dados[dados['estado'] == 'rs']['lab'].unique()),
+                    len(dados[dados['estado'] == 'sc']['lab'].unique()),
+                    len(dados[dados['estado'] == 'pr']['lab'].unique())))
+    print('\t- Esses laboratórios fizeram um total de %d exames (RS: %d; SC: %d; PR: %d)' %
+                    (dados['ex_total'].sum(),
+                    dados[dados['estado'] == 'rs']['ex_total'].sum(),
+                    dados[dados['estado'] == 'sc']['ex_total'].sum(),
+                    dados[dados['estado'] == 'pr']['ex_total'].sum()))
 
 
 def quantidadeLaboratorios(dados):
@@ -171,5 +185,6 @@ def plotCorrelacao(dados, indicador1, indicador2, baselines1, baselines2):
     return plt
 
 # Rotinas de teste
-dados = leituraDados(['rs', 'sc', 'pr'], [2015, 2016, 2017, 2018, 2019], 1500)
-#plotCorrelacao(dados[dados['ano'] == 2017], 'ind_pos', 'per_asc_alt', [2, 3, 10], [60]).show()
+#dados = leituraDados(['rs', 'sc', 'pr'], [2015, 2016, 2017, 2018, 2019])
+#dados = filtraDados(dados, 1500)
+#printLabsExames(dados)
