@@ -64,7 +64,7 @@ def quantidadeLaboratorios(dados):
     d.columns = d.columns.droplevel()
     d.columns.name = ''
     d.reset_index(inplace = True)
-    d.estado = pd.Categorical(d.estado, categories = ['rs', 'sc', 'pr'], ordered = True)
+    d.estado = pd.Categorical(d.estado, categories = ['pr', 'sc', 'rs'], ordered = True)
     d.sort_values('estado', inplace = True, ignore_index = True)
     d = d.append(d.sum(numeric_only = True), ignore_index = True)
     d.iloc[-1, d.columns.get_loc('estado')] = 'total'
@@ -79,7 +79,7 @@ def quantidadeExames(dados):
     d.columns = d.columns.droplevel()
     d.columns.name = ''
     d.reset_index(inplace = True)
-    d.estado = pd.Categorical(d.estado, categories = ['rs', 'sc', 'pr'], ordered = True)
+    d.estado = pd.Categorical(d.estado, categories = ['pr', 'sc', 'rs'], ordered = True)
     d.sort_values('estado', inplace = True, ignore_index = True)
     d['total'] = d['2015'] + d['2016'] + d['2017'] + d['2018'] + d['2019']
     d = d.append(d.sum(numeric_only = True), ignore_index = True)
@@ -105,7 +105,7 @@ def tabelaIndicadores(dados, medida):
     totais = pd.DataFrame.from_dict(totais)
     totais['estado'] = medida + '_sul'
     d = d.append(totais)
-    d.estado = pd.Categorical(d.estado, categories = ['rs', 'sc', 'pr', medida + '_sul'], ordered = True)
+    d.estado = pd.Categorical(d.estado, categories = ['pr', 'sc', 'rs', medida + '_sul'], ordered = True)
     d.indicador = pd.Categorical(d.indicador, categories = ['ind_pos', 'per_asc_sat', 'per_asc_alt', 'raz_asc_sil', 'per_hsil', 'per_ins'], ordered = True)
     d.sort_values(['indicador', 'estado'], inplace = True, ignore_index = True)
     return d
@@ -118,7 +118,7 @@ def tabelaIndicador(dados, indicador, medida):
     d.columns = d.columns.droplevel()
     d.columns.name = ''
     d.reset_index(inplace = True)
-    d.estado = pd.Categorical(d.estado, categories = ['rs', 'sc', 'pr'], ordered = True)
+    d.estado = pd.Categorical(d.estado, categories = ['pr', 'sc', 'rs'], ordered = True)
     d.classe = pd.Categorical(d.classe, categories = ['pouco', 'razoavel', 'bom', 'ideal'], ordered = True)
     d.sort_values(['estado', 'classe'], inplace = True, ignore_index = True)
     return d
@@ -185,6 +185,6 @@ def plotCorrelacao(dados, indicador1, indicador2, baselines1, baselines2):
     return plt
 
 # Rotinas de teste
-#dados = leituraDados(['rs', 'sc', 'pr'], [2015, 2016, 2017, 2018, 2019])
+#dados = leituraDados(['pr', 'sc', 'rs'], [2015, 2016, 2017, 2018, 2019])
 #dados = filtraDados(dados, 1500)
 #printLabsExames(dados)
