@@ -90,7 +90,7 @@ def quantidadeExames(dados):
 def tabelaIndicadores(dados, medida):
     d = dados
     d['ano'] = d['ano'].map(lambda x: str(x))
-    d = d.groupby(['estado', 'ano']).agg({'ind_pos': medida, 'per_asc_sat': medida,'per_asc_alt': medida, 'raz_asc_sil': medida, 'per_hsil': medida, 'per_ins': medida})
+    d = d.groupby(['estado', 'ano']).agg({'ind_pos': medida, 'per_asc_sat': medida, 'per_asc_alt': medida, 'raz_asc_sil': medida, 'per_hsil': medida, 'per_ins': medida})
     d = d.unstack('estado')
     d = d.T
     d.columns.name = ''
@@ -110,6 +110,53 @@ def tabelaIndicadores(dados, medida):
     d.sort_values(['indicador', 'estado'], inplace = True, ignore_index = True)
     return d
 
+
+def tabelaIndicadoresLaboratorios(dados):
+    d = dados.copy()
+    d['ano'] = d['ano'].map(lambda x: str(x))
+    d['ind_pos'] = d['ind_pos'].map(lambda x: 'ad' if x > 3 else 'in')
+    d['per_asc_sat'] = d['per_asc_sat'].map(lambda x: 'ad' if x < 5 else 'in')
+    d['per_asc_alt'] = d['per_asc_alt'].map(lambda x: 'ad' if x < 60 else 'in')
+    d['raz_asc_sil'] = d['raz_asc_sil'].map(lambda x: 'ad' if x < 3 else 'in')
+    d['per_hsil'] = d['per_hsil'].map(lambda x: 'ad' if x >= 0.4 else 'in')
+    d['per_ins'] = d['per_ins'].map(lambda x: 'ad' if x < 5 else 'in')
+    
+    indicadores = ['ind_pos', 'per_asc_sat', 'per_asc_alt', 'raz_asc_sil', 'per_hsil', 'per_ins']
+    d = d[['lab', 'ano', 'estado'] + indicadores]
+    anos = d['ano'].unique()
+    estados = d['estado'].unique()
+    
+    tabela = {'indicador': [], 'estado': [], 'situacao': []}
+    for indicador in indicadores:
+        for estado in estados:
+            for situacao in ['ad', 'in']:
+                tabela['indicador'].append(indicador)
+                tabela['estado'].append(estado)
+                tabela['situacao'].append('adequado' if situacao == 'ad' else 'inadequado')
+                for ano in anos:
+                    if ano not in tabela: tabela[ano] = []
+                    tabela[ano].append(len(d[(d['estado'] == estado) & (d['ano'] == ano) & (d[indicador] == situacao)]))
+                    
+    d = pd.DataFrame.from_dict(tabela)
+    d = d.groupby(['indicador', 'estado', 'situacao'], as_index = False).agg({'2015': 'sum', '2016': 'sum', '2017': 'sum', '2018': 'sum', '2019': 'sum'})
+    
+    for indicador in indicadores:
+        for estado in estados:
+            for ano in anos:
+                d2 = d[(d['indicador'] == indicador) & (d['estado'] == estado)]
+                total = d2[ano].sum()
+                adequado = d2[d2['situacao'] == 'adequado'][ano].sum()
+                inadequado = d2[d2['situacao'] == 'inadequado'][ano].sum()
+                perAdequado = round(adequado * 100 / total, 0)
+                perInadequado = 100 - perAdequado
+                d.loc[(d['indicador'] == indicador) & (d['estado'] == estado) & (d['situacao'] == 'adequado'), ano] = str(adequado) + ' (' + str(int(perAdequado)) + '%)'
+                d.loc[(d['indicador'] == indicador) & (d['estado'] == estado) & (d['situacao'] == 'inadequado'), ano] = str(inadequado) + ' (' + str(int(perInadequado)) + '%)'
+    
+    d.estado = pd.Categorical(d.estado, categories = ['pr', 'sc', 'rs'], ordered = True)
+    d.indicador = pd.Categorical(d.indicador, categories = ['ind_pos', 'per_asc_sat', 'per_asc_alt', 'raz_asc_sil', 'per_hsil', 'per_ins'], ordered = True)
+    d.sort_values(['indicador', 'estado'], inplace = True, ignore_index = True)
+    return d
+    
 
 def tabelaIndicador(dados, indicador, medida):
     d = dados[['lab', 'ano', 'estado', 'classe', indicador]]
@@ -187,4 +234,4 @@ def plotCorrelacao(dados, indicador1, indicador2, baselines1, baselines2):
 # Rotinas de teste
 #dados = leituraDados(['pr', 'sc', 'rs'], [2015, 2016, 2017, 2018, 2019])
 #dados = filtraDados(dados, 1500)
-#printLabsExames(dados)
+#print(tabelaIndicadoresLaboratorios(dados))
