@@ -3,6 +3,8 @@
 
 Taize Branco dos Santos, Marcelo de Souza
 
+Contato: branco.taize@gmail.com
+
 **Conteúdo:**
 + [Conjunto de dados](dados-datasus/);
 + [Funções de leitura, tabulação e visualização dos dados](analysis.py);
