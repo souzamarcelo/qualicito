@@ -1,4 +1,7 @@
-# Qualidade dos laboratórios de citopatologia do sul do Brasil
+# QualiCito
+**Qualidade dos laboratórios de citopatologia do sul do Brasil**
+
+Taize Branco dos Santos, Marcelo de Souza
 
 **Conteúdo:**
 + [Conjunto de dados](dados-datasus/);
@@ -7,4 +10,4 @@
 
 Para executar o lab book:
 
-[![Binder](https://notebooks.gesis.org/binder/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/souzamarcelo/quality-cytopathology-labs/master)
+[![Binder](https://notebooks.gesis.org/binder/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/souzamarcelo/qualicito/master)
