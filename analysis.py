@@ -192,7 +192,7 @@ def plotIndicadores(dados, medida):
             lim = ax.get_ylim()
             if value > lim[0] and value < lim[1]:
                 ax.axhline(y = value, linewidth = 1.3, color = 'r', linestyle = '--')
-                ax.annotate(s = str(value), xy = (ax.get_xlim()[1], value), xycoords = 'data', xytext = (-2, 2), textcoords='offset points', fontsize = 10, color = 'r', horizontalalignment = 'right', verticalalignment = 'bottom')
+                ax.annotate(text = str(value), xy = (ax.get_xlim()[1], value), xycoords = 'data', xytext = (-2, 2), textcoords='offset points', fontsize = 10, color = 'r', horizontalalignment = 'right', verticalalignment = 'bottom')
         ax.set_xticks(anos)
         ax.legend()
     fig.set_size_inches(12, 10)
@@ -217,12 +217,12 @@ def plotCorrelacao(dados, indicador1, indicador2, baselines1, baselines2):
         lim = ax.get_xlim()
         if value > lim[0] and value < lim[1]:
             ax.axvline(x = value, linewidth = 1.3, color = 'r', linestyle = '--')
-            ax.annotate(s = str(value), xy = (value, ax.get_ylim()[1]), xycoords = 'data', xytext = (-2, -2), textcoords='offset points', fontsize = 10, color = 'r', horizontalalignment = 'right', verticalalignment = 'top')
+            ax.annotate(text = str(value), xy = (value, ax.get_ylim()[1]), xycoords = 'data', xytext = (-2, -2), textcoords='offset points', fontsize = 10, color = 'r', horizontalalignment = 'right', verticalalignment = 'top')
     for value in baselines2:
         lim = ax.get_ylim()
         if value > lim[0] and value < lim[1]:
             ax.axhline(y = value, linewidth = 1.3, color = 'r', linestyle = '--')
-            ax.annotate(s = str(value), xy = (ax.get_xlim()[1], value), xycoords = 'data', xytext = (-2, 2), textcoords='offset points', fontsize = 10, color = 'r', horizontalalignment = 'right', verticalalignment = 'bottom')
+            ax.annotate(text = str(value), xy = (ax.get_xlim()[1], value), xycoords = 'data', xytext = (-2, 2), textcoords='offset points', fontsize = 10, color = 'r', horizontalalignment = 'right', verticalalignment = 'bottom')
 
     ax.set_xlabel(indicador1)
     ax.set_ylabel(indicador2)
