@@ -4,7 +4,7 @@ import analysis
 
 plt.style.use('seaborn-whitegrid')
 params = {'text.usetex' : True,
-          'font.size' : 12,
+          'font.size' : 11,
           'font.family' : 'Times New Roman',
           'xtick.labelsize': 10,
           'ytick.labelsize': 10
