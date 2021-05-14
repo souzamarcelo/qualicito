@@ -114,10 +114,10 @@ def tabelaIndicadores(dados, medida):
 def tabelaIndicadoresLaboratorios(dados):
     d = dados.copy()
     d['ano'] = d['ano'].map(lambda x: str(x))
-    d['ind_pos'] = d['ind_pos'].map(lambda x: 'ad' if x > 3 else 'in')
-    d['per_asc_sat'] = d['per_asc_sat'].map(lambda x: 'ad' if x < 5 else 'in')
+    d['ind_pos'] = d['ind_pos'].map(lambda x: 'ad' if x >= 3 else 'in')
+    d['per_asc_sat'] = d['per_asc_sat'].map(lambda x: 'ad' if x <= 5 else 'in')
     d['per_asc_alt'] = d['per_asc_alt'].map(lambda x: 'ad' if x < 60 else 'in')
-    d['raz_asc_sil'] = d['raz_asc_sil'].map(lambda x: 'ad' if x < 3 else 'in')
+    d['raz_asc_sil'] = d['raz_asc_sil'].map(lambda x: 'ad' if x <= 3 else 'in')
     d['per_hsil'] = d['per_hsil'].map(lambda x: 'ad' if x >= 0.4 else 'in')
     d['per_ins'] = d['per_ins'].map(lambda x: 'ad' if x < 5 else 'in')
     
